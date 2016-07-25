@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from tifffile import imread
 import numpy as np
 import sys
@@ -180,7 +179,6 @@ class analysis_concurrent:
 
         queue.put_nowait(y)
         #queue.cancel_join_thread()
-=======
 from tifffile import imread
 import numpy as np
 import sys
@@ -361,4 +359,3 @@ class analysis_concurrent:
             y.append(func(img))
 
         queue.put(y)
->>>>>>> 5cc14eef7e1a089fce99c20f7e1389d0cb929e6c

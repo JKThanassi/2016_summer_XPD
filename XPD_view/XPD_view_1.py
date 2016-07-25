@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """
 This file will contain the code to create the XPD view GUI
 """
@@ -31,13 +30,12 @@ class Display(QtGui.QMainWindow):
         self.analysis_type = None
         self.file_path = None
 
-<<<<<<< HEAD
+
         self.key_list, self.data_list = data_gen(1000)
-=======
         self.key_list = ['Home']
         self.data_list = data_gen(1)
         self.Tif = TifFileFinder()
->>>>>>> 5bee5cd1113c14672c684056529061429b08f114
+
 
         self._main_window = CrossSectionMainWindow(data_list=self.data_list,
                                                    key_list=self.key_list,
@@ -172,7 +170,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-=======
+
 """
 This file will contain the code to create the XPD view GUI
 """
@@ -326,4 +324,3 @@ def main():
 
 if __name__ == '__main__':
     main()
->>>>>>> 5cc14eef7e1a089fce99c20f7e1389d0cb929e6c
