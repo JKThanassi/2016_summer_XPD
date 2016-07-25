@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import matplotlib.pyplot as plt
 from analysis_concurrent import analysis_concurrent
 #from file import get_files
@@ -63,7 +62,7 @@ class reducedRepPlot:
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
         trunc_list = []
-        cpu_count = 10 #multiprocessing.cpu_count()
+        cpu_count = multiprocessing.cpu_count()
         temp_list = []
         for i in range(0, cpu_count):
 
@@ -93,9 +92,9 @@ class reducedRepPlot:
 
         for process in process_list:
             process.start()
-
-        for process in process_list:
             y.append(q.get())
+        for process in process_list:
+            # y.append(q.get())
             process.join()
 
 
@@ -114,7 +113,6 @@ class reducedRepPlot:
       #  plt.xscale()
 
         plt.show()
-=======
 import matplotlib.pyplot as plt
 from analysis_concurrent import analysis_concurrent
 #from file import get_files
@@ -179,7 +177,7 @@ class reducedRepPlot:
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
         trunc_list = []
-        cpu_count = 2 * multiprocessing.cpu_count()
+        cpu_count = 10 #2 * multiprocessing.cpu_count()
         temp_list = []
         for i in range(0, cpu_count):
 
@@ -210,11 +208,11 @@ class reducedRepPlot:
             process.start()
 
         for process in process_list:
+            y.append(q.get())
             process.join()
 
 
-        for i in range(0,cpu_count):
-            y.append(q.get())
+
 
         y = self.selectionSort(y)
         flattened_y = [val for sublist in y for val in sublist]
@@ -228,4 +226,3 @@ class reducedRepPlot:
       #  plt.xscale()
 
         plt.show()
->>>>>>> 5cc14eef7e1a089fce99c20f7e1389d0cb929e6c
