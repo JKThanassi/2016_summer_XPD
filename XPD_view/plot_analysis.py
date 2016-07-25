@@ -228,4 +228,3 @@ class reducedRepPlot:
       #  plt.xscale()
 
         plt.show()
->>>>>>> 5cc14eef7e1a089fce99c20f7e1389d0cb929e6c
