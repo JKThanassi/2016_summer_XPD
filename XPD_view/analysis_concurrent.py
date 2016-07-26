@@ -331,6 +331,7 @@ class analysis_concurrent:
         label = ""
         func = None
 
+
         if self.selection == "sigma":
             func= self.get_stdev
             self.label = "standard deviation"
@@ -348,14 +349,20 @@ class analysis_concurrent:
             self.label = "total intensity"
 
         list_num = file_list.pop(0)
+        lock.acquire()
+        print("process " + str(list_num) + " active")
+        lock.release()
         y.append(list_num)
         for img in file_list:
 
-            lock.acquire()
-            print("file from list:" + str(list_num) + " analyzed")
-            lock.release()
+            # lock.acquire()
+            # print("file from list:" + str(list_num) + " analyzed")
+            # lock.release()
             #temp_arr = imread(img)
 
             y.append(func(img))
 
         queue.put(y)
+        lock.acquire()
+        print("process " + str(list_num) + " complete")
+        lock.release()

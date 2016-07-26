@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from analysis_concurrent import analysis_concurrent
+import time
 #from file import get_files
 import multiprocessing
 
@@ -62,7 +63,7 @@ class reducedRepPlot:
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
         trunc_list = []
-        cpu_count = multiprocessing.cpu_count()
+        cpu_count = 10 #multiprocessing.cpu_count()
         temp_list = []
         for i in range(0, cpu_count):
 
@@ -90,13 +91,17 @@ class reducedRepPlot:
         for i in range(0, cpu_count):
             process_list.append(multiprocessing.Process(target=a.x_and_y_vals, args=(l, q, trunc_list[i])))
 
+        start_time = time.clock()
+        end_time = 0
         for process in process_list:
             process.start()
-            y.append(q.get())
+
         for process in process_list:
-            # y.append(q.get())
+            y.append(q.get())
             process.join()
 
+        end_time = time.clock() - start_time
+        print("time to analyze: " + str(end_time))
 
         # for i in range(0,cpu_count):
         #     y.append(q.get())
