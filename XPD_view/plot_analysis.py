@@ -63,7 +63,7 @@ class reducedRepPlot:
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
         trunc_list = []
-        cpu_count = 10 #multiprocessing.cpu_count()
+        cpu_count = multiprocessing.cpu_count()
         temp_list = []
         for i in range(0, cpu_count):
 

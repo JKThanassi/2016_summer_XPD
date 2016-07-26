@@ -11,12 +11,14 @@ import os
 class TifFileFinder(object):
 
     def __init__(self):
-        self._directory_name = ''
+        self._directory_name = None
         self.dir_fil = []
         self.file_list = []
         self.pic_list = []
 
     def get_file_list(self):
+        if self._directory_name is None:
+            raise NotADirectoryError
         if self._directory_name[-1] != '/' or '\\':
             self._directory_name += '/'
         self.dir_fil = os.listdir(self._directory_name)

@@ -332,9 +332,9 @@ class analysis_concurrent:
         func = None
 
 
-        if self.selection == "sigma":
+        if self.selection == "Standard Deviation":
             func= self.get_stdev
-            self.label = "standard deviation"
+            self.label = "Standard Deviation"
         elif self.selection == "mean":
             func = self.get_avg_2d
             self.label = "mean"
@@ -344,9 +344,9 @@ class analysis_concurrent:
         elif self.selection == "max":
             func = self.get_max
             self.label = "max"
-        elif  self.selection == "total intensity":
+        elif  self.selection == "Total Intensity":
             func = self.get_total_intensity
-            self.label = "total intensity"
+            self.label = "Total Intensity"
 
         list_num = file_list.pop(0)
         lock.acquire()
