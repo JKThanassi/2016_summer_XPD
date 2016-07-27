@@ -89,9 +89,8 @@ class Display2(QtGui.QMainWindow):
         mainmenu = self.menuBar()
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
-        refresh_option = mainmenu.addMenu('&Refresh')
         filemenu.addAction(setpath)
-        refresh_option.addAction(refresh_path)
+        filemenu.addAction(refresh_path)
         graph_menu.addAction(plt_action)
 
     def set_analysis_type(self, i):

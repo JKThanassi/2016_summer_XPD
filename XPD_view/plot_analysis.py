@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from analysis_concurrent import analysis_concurrent
 import time
-#from file import get_files
 import multiprocessing
 
 
@@ -18,7 +17,7 @@ class reducedRepPlot:
         :param y_stop:
         """
 
-        #self.tif_list = get_files(file_path)
+        # self.tif_list = get_files(file_path)
         assert x_start >= 0 and x_start < x_stop
         assert x_stop <= 2048 #TODO change so resolution is flexible
         assert y_start >= 0 and y_start < y_stop
@@ -55,12 +54,13 @@ class reducedRepPlot:
 
     def plot(self):
         """
-        This function will plot analysis data as a funciton of the number of images. uses multiprocessing to speed things up
+        This function will plot analysis data as a function of the number of images. uses multiprocessing to speed
+        things up
         :return: void
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
         trunc_list = []
-        cpu_count = 8 #multiprocessing.cpu_count()
+        cpu_count = multiprocessing.cpu_count()
 
 
         def callback(list):
