@@ -65,6 +65,10 @@ class reducedRepPlot:
         trunc_list = []
         cpu_count = multiprocessing.cpu_count()
         temp_list = []
+
+        def callback(list):
+            y.append(list)
+
         for i in range(0, cpu_count):
 
             if i == cpu_count-1:
@@ -83,22 +87,33 @@ class reducedRepPlot:
         x = range(0,len(self.tif_list))
         y = []
         q = multiprocessing.Queue()
+        p = multiprocessing.Pool(cpu_count)
         #a = multiprocessing.Array()
-        l = multiprocessing.Lock()
+        #l = multiprocessing.Lock()
         #p = multiprocessing.Process(a.x_and_y_vals, args=(l,))
 
 
-        for i in range(0, cpu_count):
-            process_list.append(multiprocessing.Process(target=a.x_and_y_vals, args=(l, q, trunc_list[i])))
-
+        # for i in range(0, cpu_count):
+        #     process_list.append(multiprocessing.Process(target=a.x_and_y_vals, args=(l, q, trunc_list[i])))
+        #
         start_time = time.clock()
+        for list in trunc_list:
+            process = p.apply_async(a.x_and_y_vals, args=(list,), callback=callback)
+        # map = p.map_async(a.x_and_y_vals, trunc_list)
+        # y = map.get()
+        p.close()
+        p.join()
+        print(y)
         end_time = 0
-        for process in process_list:
-            process.start()
+        # for process in process_list:
+        #     process.start()
 
-        for process in process_list:
-            y.append(q.get())
-            process.join()
+
+        # for i in range(0, cpu_count):
+        #     y.append(q.get())
+        # for process in process_list:
+        #     y.append(q.get())
+        #     process.join()
 
         end_time = time.clock() - start_time
         print("time to analyze: " + str(end_time))
