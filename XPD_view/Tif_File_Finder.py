@@ -11,19 +11,21 @@ import os
 class TifFileFinder(object):
 
     def __init__(self):
-        self._directory_name = ''
+        self._directory_name = None
         self.dir_fil = []
         self.file_list = []
         self.pic_list = []
 
     def get_file_list(self):
+        if self._directory_name is None:
+            raise NotADirectoryError
         if self._directory_name[-1] != '/' or '\\':
             self._directory_name += '/'
         self.dir_fil = os.listdir(self._directory_name)
-        no1 = '.dark.tif'
-        no2 = '.raw.tif'
         self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
-        self.file_list = [el for el in self.dir_fil if el.endswith('.tif') and not el.endswith(no1) or el.endswith(no2)]
+        self.file_list = [file for file in self.dir_fil if file.endswith('.tif') and not (file.endswith('.dark.tif') or
+                                                                                          file.endswith('.raw.tif'))]
+        print(len(self.file_list))
         self.get_image_arrays()
 
     def get_image_arrays(self):

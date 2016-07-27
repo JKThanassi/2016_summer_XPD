@@ -41,6 +41,7 @@ class Display2(QtGui.QMainWindow):
         self.file_path = None
         # self.key_list = ['Home']
         data_list, self.key_list = data_gen(1)
+        self.analysis_list = ["min", "max", "mean", "Standard Deviation", "Total Intensity"]
         self.Tif = TifFileFinder()
 
         # These commands initialize the 2D cross section widget to draw itself
@@ -80,12 +81,141 @@ class Display2(QtGui.QMainWindow):
         refresh_path.setShortcut('Ctrl+R')
         refresh_path.triggered.connect(self.refresh)
 
+        plt_action = QtGui.QAction("&Plot", self)
+        plt_action.setShortcut("Ctrl+P")
+        plt_action.triggered.connect(self.set_graph_settings)
+
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
+        refresh_option = mainmenu.addMenu('&Refresh')
         filemenu.addAction(setpath)
-        filemenu.addAction(refresh_path)
+        refresh_option.addAction(refresh_path)
+        graph_menu.addAction(plt_action)
+
+    def set_analysis_type(self, i):
+        self.analysis_type = self.analysis_list[i]
+
+    def plot_analysis(self, x_min, x_max, y_min, y_max):
+        try:
+            rpp = reducedRepPlot(self.data_dict, self.key_list, x_min, x_max, y_min, y_max, self.analysis_type)
+            rpp.plot()
+        except NotADirectoryError:
+            print("exception excepted")
+            err_msg_file = QtGui.QMessageBox()
+            err_msg_file.setIcon(QtGui.QMessageBox.Critical)
+            err_msg_file.setWindowTitle("Error")
+            err_msg_file.setText("You did not specify a file path.")
+            err_msg_file.setInformativeText("click open to set the file path")
+            err_msg_file.setStandardButtons(QtGui.QMessageBox.Open)
+            err_msg_file.buttonClicked.connect(self.set_path)
+            err_msg_file.exec_()
+        except AssertionError:
+            err_msg_analysis = QtGui.QMessageBox()
+            err_msg_analysis.setIcon(QtGui.QMessageBox.Critical)
+            err_msg_analysis.setWindowTitle("Error")
+            err_msg_analysis.setText("The limits are incorrect")
+            err_msg_analysis.setInformativeText("x_min must be less than x_max \n y_min must be greater than y_max")
+            err_msg_analysis.setStandardButtons(QtGui.QMessageBox.Close)
+            # err_msg_analysis.buttonClicked.connect(self.set_path)
+            err_msg_analysis.exec_()
+
+    def set_graph_settings(self):
+        menu = QtGui.QDialog(self)
+        menu.setWindowTitle("Reduced Representation Settings")
+        menu.setWindowModality(QtCore.Qt.ApplicationModal)
+        #menu.setGeometry(300, 300, 800, 300)
+        vbox = QtGui.QVBoxLayout()
+        hbox_lim_labels = QtGui.QHBoxLayout()
+        hbox_lim_widgets = QtGui.QHBoxLayout()
+
+        # creating qt widgets
+        analysis_selector = QtGui.QComboBox(menu)
+        analysis_selector.addItems(self.analysis_list)
+
+        print(self.messenger._fig.axes[0].get_xlim())
+        print(self.messenger._fig.axes[0].get_ylim())
+
+        a_selector_label = QtGui.QLabel()
+        x_min_label = QtGui.QLabel()
+        x_max_label = QtGui.QLabel()
+        y_min_label = QtGui.QLabel()
+        y_max_label = QtGui.QLabel()
+
+        a_selector_label.setText("Analysis Type")
+        x_min_label.setText("x min")
+        x_max_label.setText("x max")
+        y_min_label.setText("y min")
+        y_max_label.setText("y max")
+
+        x_min, x_max = self.messenger._fig.axes[0].get_xlim()
+        x_lim_min = QtGui.QSpinBox()
+        x_lim_min.setMinimum(0)
+        x_lim_min.setMaximum(2048)
+        x_lim_min.setValue(int(x_min))
+
+        x_lim_max = QtGui.QSpinBox()
+        x_lim_max.setMinimum(0)
+        x_lim_max.setMaximum(2048)
+        x_lim_max.setValue(int(x_max))
+
+        y_min, y_max = self.messenger._fig.axes[0].get_ylim()
+        y_lim_min = QtGui.QSpinBox()
+        y_lim_min.setMinimum(0)
+        y_lim_min.setMaximum(10000)
+        y_lim_min.setValue(int(y_min))
+
+        y_lim_max = QtGui.QSpinBox()
+        y_lim_max.setMinimum(0)
+        y_lim_max.setMaximum(10000)
+        y_lim_max.setValue(int(y_max))
+
+        plt_btn = QtGui.QPushButton()
+        plt_btn.setText("Plot")
+        plt_btn.clicked.connect(menu.close)
+        plt_btn.clicked.connect(lambda: self.set_analysis_type(analysis_selector.currentIndex()))
+        plt_btn.clicked.connect(lambda: self.plot_analysis(x_lim_min.value(), x_lim_max.value(),
+                                                           y_lim_min.value(), y_lim_max.value()))
+
+        #defining layout
+        vbox.addStretch()
+        vbox.addWidget(a_selector_label)
+        vbox.addStretch()
+        vbox.addWidget(analysis_selector)
+        vbox.addStretch()
+        #defining label horizontal layout
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(x_min_label)
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(x_max_label)
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(y_min_label)
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(y_max_label)
+        hbox_lim_labels.setAlignment(QtCore.Qt.AlignLeft)
+
+        vbox.addLayout(hbox_lim_labels)
+        vbox.addStretch()
+
+        #defining widget horizontal layout
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(x_lim_min)
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(x_lim_max)
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(y_lim_min)
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(y_lim_max)
+        hbox_lim_widgets.setAlignment(QtCore.Qt.AlignLeft)
+
+        vbox.addLayout(hbox_lim_widgets)
+        vbox.addStretch()
+        vbox.addWidget(plt_btn)
+
+        menu.setLayout(vbox)
+        menu.show()
+        menu.exec_()
 
     def set_up_tool_bar(self):
         # All these commands will extract the desired widgets from x-ray_vision for our purposes
@@ -157,4 +287,6 @@ def main():
     viewer = Display2()
     viewer.show()
     sys.exit(app.exec_())
-main()
+
+if __name__ == "__main__":
+    main()

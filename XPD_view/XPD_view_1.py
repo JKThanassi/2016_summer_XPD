@@ -12,7 +12,7 @@ from plot_analysis import reducedRepPlot
 
 
 def data_gen(length):
-    x, y = [_ * 2 * np.pi / 200 for _ in np.ogrid[-200:200, -200:200]]
+    x, y = [_ * 2 * np.pi / 200 for _ in np.ogrid[-1000:1000, -1000:1000]]
     rep = int(np.sqrt(length))
     data = []
     for idx in range(length):
@@ -29,6 +29,7 @@ class Display(QtGui.QMainWindow):
         self.setWindowTitle('XPD View')
         self.analysis_type = None
         self.file_path = None
+        self.analysis_list = ["min", "max", "mean", "Standard Deviation", "Total Intensity"]
 
         self.key_list = ['Home']
         self.data_list = data_gen(1)
@@ -52,23 +53,24 @@ class Display(QtGui.QMainWindow):
         refresh.triggered.connect(self.refresh)
 
         # set analysis type options
-        select_mean = QtGui.QAction("&mean", self)
-        select_mean.triggered.connect(self.set_type_mean)
-
-        select_std_dev = QtGui.QAction("&standard deviation", self)
-        select_std_dev.triggered.connect(self.set_type_stddev)
-
-        select_min = QtGui.QAction("&min", self)
-        select_min.triggered.connect(self.set_type_min)
-
-        select_max = QtGui.QAction("&max", self)
-        select_max.triggered.connect(self.set_type_max)
-
-        select_total_intensity = QtGui.QAction("&total intensity", self)
-        select_total_intensity.triggered.connect(self.set_type_total)
+        # select_mean = QtGui.QAction("&mean", self)
+        # select_mean.triggered.connect(self.set_type_mean)
+        #
+        # select_std_dev = QtGui.QAction("&standard deviation", self)
+        # select_std_dev.triggered.connect(self.set_type_stddev)
+        #
+        # select_min = QtGui.QAction("&min", self)
+        # select_min.triggered.connect(self.set_type_min)
+        #
+        # select_max = QtGui.QAction("&max", self)
+        # select_max.triggered.connect(self.set_type_max)
+        #
+        # select_total_intensity = QtGui.QAction("&total intensity", self)
+        # select_total_intensity.triggered.connect(self.set_type_total)
 
         plt_action = QtGui.QAction("&Plot", self)
-        plt_action.triggered.connect(self.plot_analysis)
+        plt_action.setShortcut("Ctrl+P")
+        plt_action.triggered.connect(self.set_graph_settings)
 
         self.statusBar()
 
@@ -76,15 +78,20 @@ class Display(QtGui.QMainWindow):
         mainmenu = self.menuBar()
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Represenation')
+<<<<<<< HEAD
         analysis_submenu = QtGui.QMenu("analysis settings", graph_menu)
+=======
+        #graph_menu.triggered.connect(self.set_graph_settings)
+        # analysis_submenu = QtGui.QMenu("analysis settings", graph_menu)
+>>>>>>> 85d140c407a48ea9d46c7490b1882c37cd43d8ec
         filemenu.addAction(setpath)
         filemenu.addAction(refresh)
-        analysis_submenu.addAction(select_max)
-        analysis_submenu.addAction(select_min)
-        analysis_submenu.addAction(select_mean)
-        analysis_submenu.addAction(select_std_dev)
-        analysis_submenu.addAction(select_total_intensity)
-        graph_menu.addMenu(analysis_submenu)
+        # analysis_submenu.addAction(select_max)
+        # analysis_submenu.addAction(select_min)
+        # analysis_submenu.addAction(select_mean)
+        # analysis_submenu.addAction(select_std_dev)
+        # analysis_submenu.addAction(select_total_intensity)
+        #graph_menu.addMenu(analysis_submenu)
         graph_menu.addAction(plt_action)
 
         self._main_window._messenger._ctrl_widget._spin_img.valueChanged.connect(self.thingy)
@@ -97,29 +104,109 @@ class Display(QtGui.QMainWindow):
         self.Tif.get_file_list()
         self.update_data(self.Tif.pic_list, self.Tif.file_list)
 
-    def set_type_mean(self):
-        self.analysis_type = "mean"
-        print("mean")
+    def set_graph_settings(self):
+        menu = QtGui.QDialog(self)
+        menu.setWindowTitle("Reduced Representation Settings")
+        menu.setWindowModality(QtCore.Qt.ApplicationModal)
+        #menu.setGeometry(300, 300, 800, 300)
+        vbox = QtGui.QVBoxLayout()
+        hbox_lim_labels = QtGui.QHBoxLayout()
+        hbox_lim_widgets = QtGui.QHBoxLayout()
 
-    def set_type_min(self):
-        self.analysis_type = "min"
-        print("min")
+        # creating qt widgets
+        analysis_selector = QtGui.QComboBox(menu)
+        analysis_selector.addItems(self.analysis_list)
 
-    def set_type_stddev(self):
-        self.analysis_type = "sigma"
-        print("sigma")
+        print(self._main_window._messenger._fig.axes[0].get_xlim())
+        print(self._main_window._messenger._fig.axes[0].get_ylim())
 
-    def set_type_max(self):
-        self.analysis_type = "max"
-        print("max")
+        a_selector_label = QtGui.QLabel()
+        x_min_label = QtGui.QLabel()
+        x_max_label = QtGui.QLabel()
+        y_min_label = QtGui.QLabel()
+        y_max_label = QtGui.QLabel()
 
-    def set_type_total(self):
-        self.analysis_type = "total intensity"
-        print("total intensity")
+        a_selector_label.setText("Analysis Type")
+        x_min_label.setText("x min")
+        x_max_label.setText("x max")
+        y_min_label.setText("y min")
+        y_max_label.setText("y max")
 
-    def plot_analysis(self):
+        x_min, x_max = self._main_window._messenger._fig.axes[0].get_xlim()
+        x_lim_min = QtGui.QSpinBox()
+        x_lim_min.setMinimum(0)
+        x_lim_min.setMaximum(2048)
+        x_lim_min.setValue(int(x_min))
+
+        x_lim_max = QtGui.QSpinBox()
+        x_lim_max.setMinimum(0)
+        x_lim_max.setMaximum(2048)
+        x_lim_max.setValue(int(x_max))
+
+        y_min, y_max = self._main_window._messenger._fig.axes[0].get_ylim()
+        y_lim_min = QtGui.QSpinBox()
+        y_lim_min.setMinimum(0)
+        y_lim_min.setMaximum(10000)
+        y_lim_min.setValue(int(y_min))
+
+        y_lim_max = QtGui.QSpinBox()
+        y_lim_max.setMinimum(0)
+        y_lim_max.setMaximum(10000)
+        y_lim_max.setValue(int(y_max))
+
+        plt_btn = QtGui.QPushButton()
+        plt_btn.setText("Plot")
+        plt_btn.clicked.connect(menu.close)
+        plt_btn.clicked.connect(lambda: self.set_analysis_type(analysis_selector.currentIndex()))
+        plt_btn.clicked.connect(lambda: self.plot_analysis(x_lim_min.value(), x_lim_max.value(),
+                                                           y_lim_min.value(), y_lim_max.value()))
+
+        #defining layout
+        vbox.addStretch()
+        vbox.addWidget(a_selector_label)
+        vbox.addStretch()
+        vbox.addWidget(analysis_selector)
+        vbox.addStretch()
+        #defining label horizontal layout
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(x_min_label)
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(x_max_label)
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(y_min_label)
+        hbox_lim_labels.addStretch()
+        hbox_lim_labels.addWidget(y_max_label)
+        hbox_lim_labels.setAlignment(QtCore.Qt.AlignLeft)
+
+        vbox.addLayout(hbox_lim_labels)
+        vbox.addStretch()
+
+        #defining widget horizontal layout
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(x_lim_min)
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(x_lim_max)
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(y_lim_min)
+        hbox_lim_widgets.addStretch()
+        hbox_lim_widgets.addWidget(y_lim_max)
+        hbox_lim_widgets.setAlignment(QtCore.Qt.AlignLeft)
+
+        vbox.addLayout(hbox_lim_widgets)
+        vbox.addStretch()
+        vbox.addWidget(plt_btn)
+
+        menu.setLayout(vbox)
+        menu.show()
+        menu.exec_()
+
+
+    def set_analysis_type(self, i):
+        self.analysis_type = self.analysis_list[i]
+
+    def plot_analysis(self, x_min, x_max, y_min, y_max):
         try:
-            rpp = reducedRepPlot(self.data_list, 0, 400, 0, 400, self.analysis_type)
+            rpp = reducedRepPlot(self.data_list, x_min, x_max, y_min, y_max, self.analysis_type)
             rpp.plot()
         except NotADirectoryError:
             print("exception excepted")
@@ -135,11 +222,12 @@ class Display(QtGui.QMainWindow):
             err_msg_analysis = QtGui.QMessageBox()
             err_msg_analysis.setIcon(QtGui.QMessageBox.Critical)
             err_msg_analysis.setWindowTitle("Error")
-            err_msg_analysis.setText("You did not specify an analysis type")
-            err_msg_analysis.setInformativeText("please go to the menu and select an analysis type before proceeding")
+            err_msg_analysis.setText("The limits are incorrect")
+            err_msg_analysis.setInformativeText("x_min must be less than x_max \n y_min must be greater than y_max")
             err_msg_analysis.setStandardButtons(QtGui.QMessageBox.Close)
             # err_msg_analysis.buttonClicked.connect(self.set_path)
             err_msg_analysis.exec_()
+
 
     def refresh(self):
         new_file_names, new_data = self.Tif.get_new_files()
