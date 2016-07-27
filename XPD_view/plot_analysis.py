@@ -7,7 +7,7 @@ import multiprocessing
 
 class reducedRepPlot:
 
-    def __init__(self, tif_list, x_start, x_stop, y_start, y_stop, selection):
+    def __init__(self, data_dict, key_list, x_start, x_stop, y_start, y_stop, selection):
         """
         constructor for reducedRepPlot object
         :param file_path: path to file directory
@@ -19,16 +19,13 @@ class reducedRepPlot:
         """
 
         #self.tif_list = get_files(file_path)
-        self.tif_list = tif_list
-
-
-
-
         assert x_start >= 0 and x_start < x_stop
         assert x_stop <= 2048 #TODO change so resolution is flexible
         assert y_start >= 0 and y_start < y_stop
         assert y_stop <= 2048 #TODO change so resolution is flexible
 
+        self.data_dict = data_dict
+        self.key_list = key_list
         self.x_start = x_start
         self.x_stop = x_stop
         self.y_start = y_start
@@ -63,28 +60,32 @@ class reducedRepPlot:
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
         trunc_list = []
-        cpu_count = multiprocessing.cpu_count()
-        temp_list = []
+        cpu_count = 8 #multiprocessing.cpu_count()
+
 
         def callback(list):
             y.append(list)
 
         for i in range(0, cpu_count):
-
+            temp_list = []
             if i == cpu_count-1:
-                temp_list = self.tif_list[(i*len(self.tif_list)//cpu_count) : (((1+i)*len(self.tif_list)//cpu_count) +
-                                                                               (len(self.tif_list)%cpu_count))]
+                temp_key_list = self.key_list[(i * len(self.key_list) // cpu_count) : (((1 + i) * len(self.key_list) // cpu_count) +
+                                                                                     (len(self.data_dict) % cpu_count))]
+                for key in temp_key_list:
+                    temp_list.append(self.data_dict[key])
                 temp_list.insert(0, i)
 
             else:
-                temp_list = self.tif_list[(i*len(self.tif_list)//cpu_count) : ((1+i)*len(self.tif_list)//cpu_count)]
+                temp_key_list = self.key_list[(i * len(self.key_list) // cpu_count) : ((1 + i) * len(self.key_list) // cpu_count)]
+                for key in temp_key_list:
+                    temp_list.append(self.data_dict[key])
                 temp_list.insert(0, i)
             trunc_list.append(temp_list)
 
        # print(self.check_lists(self.tif_list, trunc_list, cpu_count))
 
         process_list = []
-        x = range(0,len(self.tif_list))
+        x = range(0, len(self.data_dict))
         y = []
         q = multiprocessing.Queue()
         p = multiprocessing.Pool(cpu_count)
@@ -98,13 +99,12 @@ class reducedRepPlot:
         #
         start_time = time.clock()
         for list in trunc_list:
-            process = p.apply_async(a.x_and_y_vals, args=(list,), callback=callback)
+            p.apply_async(a.x_and_y_vals, args=(list,), callback=callback)
         # map = p.map_async(a.x_and_y_vals, trunc_list)
         # y = map.get()
         p.close()
         p.join()
         print(y)
-        end_time = 0
         # for process in process_list:
         #     process.start()
 
@@ -122,9 +122,10 @@ class reducedRepPlot:
         #     y.append(q.get())
 
         y = self.selectionSort(y)
+        print(y)
         flattened_y = [val for sublist in y for val in sublist]
 
-        assert len(flattened_y) == len(self.tif_list)
+        assert (len(flattened_y) == len(self.key_list))
         plt.scatter(x, flattened_y)
 
         plt.xlabel("file num")

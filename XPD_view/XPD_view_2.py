@@ -12,7 +12,7 @@ from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
 
 def data_gen(length):
-    x, y = [_ * 2 * np.pi / 200 for _ in np.ogrid[-200:200, -200:200]]
+    x, y = [_ * 2 * np.pi / 200 for _ in np.ogrid[-800:800, -800:800]]
     rep = int(np.sqrt(length))
     data = []
     for idx in range(length):
@@ -92,7 +92,7 @@ class Display2(QtGui.QMainWindow):
 
     def plot_analysis(self, x_min, x_max, y_min, y_max):
         try:
-            rpp = reducedRepPlot(self.data_list, x_min, x_max, y_min, y_max, self.analysis_type)
+            rpp = reducedRepPlot(self.data_dict, self.key_list, x_min, x_max, y_min, y_max, self.analysis_type)
             rpp.plot()
         except NotADirectoryError:
             print("exception excepted")
